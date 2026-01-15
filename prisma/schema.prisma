@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  //output   = "../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas = "public"
+}
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("users")
+  @@schema("public")
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  name      String
+  phone     String
+  email     String
+  notes     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("clients")
+  @@schema("public")
+}
+
+
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  name        String
+  costPrice   Decimal  @map("cost_price")
+  salePrice   Decimal  @map("sale_price")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@map("services")
+  @@schema("public")
+}
+
+model Subscription {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @map("user_id")
+  clientId       Int      @map("client_id")
+  serviceId      Int      @map("service_id")
+  accountEmail   String   @map("account_email")
+  accountPassword String   @map("account_password")
+  profileName    String   @map("profile_name")
+  startDate      DateTime @map("start_date")
+  endDate        DateTime @map("end_date")
+  status         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  @@map("subscriptions")
+  @@schema("public")
+}
