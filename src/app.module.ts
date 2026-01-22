@@ -1,17 +1,27 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { Module} from '@nestjs/common';
 import { CommonModule } from './common/common.module';
-import { UsersModule } from './users/users.module';
-import { ClientsModule } from './clients/clients.module';
-import { ServicesModule } from './services/services.module';
-import { SubscriptionsModule } from './subscriptions/subscriptions.module';
-import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
+import { UsersModule } from './modules/users/users.module';
+import { PrismaService } from './modules/prisma/prisma.service';
+import { CacheModule } from '@nestjs/cache-manager';
+import { PrismaModule } from './modules/prisma/prisma.module';
+import KeyvRedis from '@keyv/redis';
+import { env } from 'process';
+import { TestModule } from './modules/test/test.module';
 @Module({
-  imports: [CommonModule, UsersModule, ClientsModule, ServicesModule, SubscriptionsModule],
+  imports: [CacheModule.registerAsync({
+    isGlobal: true,
+      useFactory: async () => {
+        return {
+          ttl: 5000,
+          stores: [
+            new KeyvRedis(env.REDIS_URL),
+          ],
+        };
+      },
+    }),PrismaModule,CommonModule, UsersModule, TestModule],
   controllers: [],
-  providers: [],
+  providers: [PrismaService],
 })
 export class AppModule {
-   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes({ path: '*', method: RequestMethod.ALL });
-  }
+
 }
